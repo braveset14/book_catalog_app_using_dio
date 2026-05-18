@@ -19,8 +19,28 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    // ✅ ADD THIS - Load books when screen opens
     context.read<BookBloc>().add(LoadBooksEvent());
+  }
+
+  void _showDeleteDialog(BuildContext context, int id) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Delete Book'),
+        content: const Text('Are you sure?'),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx), child: const Text('No')),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              context.read<BookBloc>().add(DeleteBookEvent(id: id));
+            },
+            child: const Text('Yes'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -70,7 +90,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     );
                   },
                   onDelete: () {
-                    context.read<BookBloc>().add(DeleteBookEvent(id: book.id!));
+                    _showDeleteDialog(context, book.id);
                   },
                 );
               },

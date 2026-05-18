@@ -12,7 +12,10 @@ A Flutter application that performs CRUD operations using Bloc for state managem
 - Error handling
 
 ## Screenshots
-
+![Get All Books](image.png)
+![Update a book](image-1.png)
+![Delete book](image-2.png)
+![Create a book](image-3.png)
 ## Packages used
  
  - Flutter
