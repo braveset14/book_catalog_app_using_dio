@@ -16,6 +16,7 @@ class AddEditScreen extends StatefulWidget {
 class _AddEditScreenState extends State<AddEditScreen> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _titleController;
+  late TextEditingController _descriptionController;
   late TextEditingController _authorController;
   late TextEditingController _priceController;
   String _selectedCondition = 'Good';
@@ -28,6 +29,8 @@ class _AddEditScreenState extends State<AddEditScreen> {
   void initState() {
     super.initState();
     _titleController = TextEditingController(text: widget.book?.title ?? '');
+    _descriptionController =
+        TextEditingController(text: widget.book?.description ?? '');
     _authorController = TextEditingController(text: widget.book?.author ?? '');
     _priceController = TextEditingController(
       text: widget.book?.price.toString() ?? '',
@@ -38,6 +41,7 @@ class _AddEditScreenState extends State<AddEditScreen> {
   @override
   void dispose() {
     _titleController.dispose();
+    _descriptionController.dispose();
     _authorController.dispose();
     _priceController.dispose();
     super.dispose();
@@ -51,8 +55,9 @@ class _AddEditScreenState extends State<AddEditScreen> {
     });
 
     final book = Book(
-      id: widget.book?.id,
+      id: widget.book?.id ?? 0,
       title: _titleController.text.trim(),
+      description: _descriptionController.text.trim() ?? '',
       author: _authorController.text.trim(),
       condition: _selectedCondition,
       price: double.parse(_priceController.text.trim()),
@@ -118,6 +123,21 @@ class _AddEditScreenState extends State<AddEditScreen> {
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter book title';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _descriptionController,
+                decoration: const InputDecoration(
+                  labelText: 'Description',
+                  border: OutlineInputBorder(),
+                ),
+                maxLines: 3,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter description';
                   }
                   return null;
                 },

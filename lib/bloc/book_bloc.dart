@@ -39,6 +39,7 @@ class BookBloc extends Bloc<BookEvent, BookState> {
         final bookWithId = Book(
           id: DateTime.now().millisecondsSinceEpoch,
           title: event.book.title,
+          description: event.book.description,
           author: event.book.author,
           condition: event.book.condition,
           price: event.book.price,

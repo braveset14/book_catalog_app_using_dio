@@ -42,8 +42,9 @@ class ApiService {
 
       if (response.statusCode == 201) {
         return Book(
-          id: response.data['id'],
+          id: response.data['id'] ?? 0,
           title: book.title,
+          description: book.description,
           author: book.author,
           condition: book.condition,
           price: book.price,
@@ -69,6 +70,7 @@ class ApiService {
         return Book(
           id: id,
           title: book.title,
+          description: book.description,
           author: book.author,
           condition: book.condition,
           price: book.price,

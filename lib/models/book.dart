@@ -1,15 +1,17 @@
 class Book {
-  final int? id;
+  final int id;
   final String title;
+  final String description;
   final String author;
   final String condition;
   final double price;
 
   Book({
-    this.id,
+    required this.id,
     required this.author,
     required this.condition,
     required this.price,
+    required this.description,
     required this.title,
   });
 
@@ -21,6 +23,7 @@ class Book {
     return Book(
       id: json['id'],
       title: json['title'] ?? 'Untitled Book',
+      description: json['body'] ?? 'No description available.',
       author: 'User ${json['userId']}',
       condition: conditions[conditionIndex],
       price: price.toDouble(),
@@ -30,7 +33,7 @@ class Book {
   Map<String, dynamic> toJson() {
     return {
       'title': title,
-      'body': 'Author: $author | Condition: $condition | Price: \$$price',
+      'body': description ?? '',
       'userId': 1,
     };
   }

@@ -22,10 +22,19 @@ class BookCard extends StatelessWidget {
         title: Text(
           book.title,
           style: const TextStyle(fontWeight: FontWeight.bold),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
         ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Text(
+              book.description,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+            ),
+            const SizedBox(height: 4),
             Text('by ${book.author}'),
             Text('Condition: ${book.condition}'),
             Text('\$${book.price.toStringAsFixed(2)}',
