@@ -1,0 +1,191 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../models/book.dart';
+import '../bloc/book_bloc.dart';
+import '../bloc/book_event.dart';
+import '../widgets/loading_widget.dart';
+import '../widgets/error_widget.dart';
+
+class AddEditScreen extends StatefulWidget {
+  final Book? book;
+  const AddEditScreen({super.key, this.book});
+  @override
+  State<AddEditScreen> createState() => _AddEditScreenState();
+}
+
+class _AddEditScreenState extends State<AddEditScreen> {
+  final _formKey = GlobalKey<FormState>();
+  late TextEditingController _titleController;
+  late TextEditingController _authorController;
+  late TextEditingController _priceController;
+  String _selectedCondition = 'Good';
+  bool _isSaving = false;
+  String? _errorMessage;
+
+  final List<String> _conditions = ['Excellent', 'Good', 'Fair', 'Poor'];
+
+  @override
+  void initState() {
+    super.initState();
+    _titleController = TextEditingController(text: widget.book?.title ?? '');
+    _authorController = TextEditingController(text: widget.book?.author ?? '');
+    _priceController = TextEditingController(
+      text: widget.book?.price.toString() ?? '',
+    );
+    _selectedCondition = widget.book?.condition ?? 'Good';
+  }
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _authorController.dispose();
+    _priceController.dispose();
+    super.dispose();
+  }
+
+  void _saveBook() {
+    if (!_formKey.currentState!.validate()) return;
+    setState(() {
+      _isSaving = true;
+      _errorMessage = null;
+    });
+
+    final book = Book(
+      id: widget.book?.id,
+      title: _titleController.text.trim(),
+      author: _authorController.text.trim(),
+      condition: _selectedCondition,
+      price: double.parse(_priceController.text.trim()),
+    );
+
+    if (widget.book == null) {
+      context.read<BookBloc>().add(AddBookEvent(book: book));
+    } else {
+      context
+          .read<BookBloc>()
+          .add(UpdateBookEvent(id: widget.book!.id!, book: book));
+    }
+
+    Navigator.pop(context);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isEditing = widget.book != null;
+
+    // Used custom ErrorMessage widget.
+    if (_errorMessage != null) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text(isEditing ? 'Edit Book' : 'Add Book'),
+          centerTitle: true,
+        ),
+        body: ErrorMessageWidget(
+          message: _errorMessage!,
+          onRetry: _saveBook,
+        ),
+      );
+    }
+
+    // Show  custom loading widget while saving.
+    if (_isSaving) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text(isEditing ? 'Edit Book' : 'Add Book'),
+          centerTitle: true,
+        ),
+        body: const LoadingWidget(),
+      );
+    }
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(isEditing ? 'Edit Book' : 'Add Book'),
+        centerTitle: true,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              TextFormField(
+                controller: _titleController,
+                decoration: const InputDecoration(
+                  labelText: 'Book Title',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter book title';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _authorController,
+                decoration: const InputDecoration(
+                  labelText: 'Author',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter author name';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+              DropdownButtonFormField<String>(
+                value: _selectedCondition,
+                decoration: const InputDecoration(
+                  labelText: 'Condition',
+                  border: OutlineInputBorder(),
+                ),
+                items: _conditions.map((condition) {
+                  return DropdownMenuItem(
+                    value: condition,
+                    child: Text(condition),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  setState(() {
+                    _selectedCondition = value!;
+                  });
+                },
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _priceController,
+                decoration: const InputDecoration(
+                  labelText: 'Price (\$)',
+                  border: OutlineInputBorder(),
+                ),
+                keyboardType: TextInputType.number,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter price';
+                  }
+                  if (double.tryParse(value) == null) {
+                    return 'Please enter a valid number';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: _saveBook,
+                  child: Text(isEditing ? 'UPDATE BOOK' : 'ADD BOOK'),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
